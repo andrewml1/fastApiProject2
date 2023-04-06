@@ -16,6 +16,6 @@ async def say_hello():
 
 
 @app.get("/hello/pedacito")
-async def say_hello():
+async def hola_pedacito():
     return {"message": f"Hola Pedacito, estamos aqui en etapa de pruebas y todo esta saliendo bien",
             "Fecha":"06/04/23"}
