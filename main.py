@@ -13,3 +13,9 @@ async def root():
 async def say_hello():
     return {"message": f"Welcome to Veamy",
             "Data":"1,2,3,4"}
+
+
+@app.get("/hello/pedacito")
+async def say_hello():
+    return {"message": f"Hola Pedacito, estamos aqui en etapa de pruebas y todo esta saliendo bien",
+            "Fecha":"06/04/23"}
