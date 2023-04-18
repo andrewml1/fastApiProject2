@@ -11,20 +11,7 @@ from pymongo.server_api import ServerApi
 app = FastAPI()
 
 
-class Student(BaseModel):
-    edad: int
-    imc: float
-    tfg: float
-    hba1c: float
-    meta_hba1c = int
-    medicamento: str
-    antecedente: str
-    tolera_metform: bool
-    hipos: bool
-    glicemia: float
-    ultGlicada: int
-    ultCreatinina: int
-    tolera_aGLP1: bool
+
 
 @app.get("/")
 def root():
@@ -35,10 +22,10 @@ def root():
 def get_paciente(paciente_id:int):
     return Pacientes[paciente_id]
 
-class Paciente(BaseModel):
-  name: str
-  email: str
-  password: str
+# class Paciente(BaseModel):
+#   name: str
+#   email: str
+#   password: str
 
 ##Base de datos Mongo para almacenar lo que se envia
 Pacientes={
@@ -58,24 +45,48 @@ db = client.test
 ##Crear objeto collection (sobre este es que va a insertar los datos)
 collection = db.my_collection
 
+
+class Paciente(BaseModel):
+    edad: int
+    imc: float
+    tfg: float
+    hba1c: float
+    meta_hba1c: int
+    medicamento: str
+    antecedente: str
+    tolera_metform: bool
+    hipos: bool
+    glicemia: float
+    ultGlicada: int
+    ultCreatinina: int
+    tolera_aGLP1: bool
+
 @app.post("/Enviar")
 def envio_info(numPte:int, pte:Paciente):
         if numPte in Pacientes:
             return {"Error":"Paciente ya existe"}
         else:
-            document = {"name": pte.name,
-                        "email": pte.email,
-                        "password": pte.password}
+            document = {
+            "numPte": numPte,
+            "edad": pte.edad,
+            "imc": pte.imc,
+            "tfg": pte.tfg,
+            "hba1c": pte.hba1c,
+            "meta_hba1c": pte.meta_hba1c,
+            "medicamento": pte.medicamento,
+            "antecedente": pte.antecedente,
+            "tolera_metform": pte.tolera_metform,
+            "hipos": pte.hipos,
+            "glicemia": pte.glicemia,
+            "ultGlicada": pte.ultGlicada,
+            "ultCreatinina": pte.ultCreatinina,
+            "tolera_aGLP1": pte.tolera_aGLP1}
 
-            ##Agregar linea de como estan entrando los datos
-            ##Se debe de tener
-            ##Postman va servir para cuando ya queramos correr otras cosas
-
-            result = collection.insert_one(document)
+        result = collection.insert_one(document)
 
             # Pacientes[numPte]=pte
             # return Pacientes[numPte]
-            return {"message": "registro de " + pte.name + " agregada(o)"}
+        return {"message": "registro agregada(o)"}
 
 
 
