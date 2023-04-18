@@ -11,8 +11,6 @@ from pymongo.server_api import ServerApi
 app = FastAPI()
 
 
-
-
 @app.get("/")
 def root():
     return {"message": "Hello World"}
@@ -22,10 +20,6 @@ def root():
 def get_paciente(paciente_id:int):
     return Pacientes[paciente_id]
 
-# class Paciente(BaseModel):
-#   name: str
-#   email: str
-#   password: str
 
 ##Base de datos Mongo para almacenar lo que se envia
 Pacientes={
@@ -36,39 +30,37 @@ Pacientes={
     }
 }
 
+##Mongo DB conexion:
 uri = "mongodb+srv://andrewml1:ludacris@cluster0.iwdoxtk.mongodb.net/?retryWrites=true&w=majority"
 
 # Create a new client and connect to the server
 client = MongoClient(uri, server_api=ServerApi('1'))
-##Test el cliente
 db = client.test
 ##Crear objeto collection (sobre este es que va a insertar los datos)
 collection = db.my_collection
 
-
+##Clase paciente con valores por defecto
 class Paciente(BaseModel):
-    edad: int
-    imc: float
-    tfg: float
-    hba1c: float
-    meta_hba1c: int
-    medicamento: str
-    antecedente: str
-    tolera_metform: bool
-    hipos: bool
-    glicemia: float
-    ultGlicada: int
-    ultCreatinina: int
-    tolera_aGLP1: bool
+    edad: int = 0
+    imc: float = 20.0
+    tfg: float = 70.0
+    hba1c: float = 7.0
+    meta_hba1c: int = 7
+    medicamento: str = "Incluir medicamentos"
+    antecedente: str = "Incluir antecedentes"
+    tolera_metform: bool = True
+    hipos: bool = False
+    glicemia: float = 140.0
+    ultGlicada: int = 2
+    ultCreatinina: int = 3
+    tolera_aGLP1: bool = True
 
 @app.post("/Enviar")
 def envio_info(numPte:int, pte:Paciente):
-        if numPte in Pacientes:
-            return {"Error":"Paciente ya existe"}
+        if any(value is None for value in pte.dict().values()):  # Verifica que todos los valores del objeto Paciente se han completado
+            return {"Error": "Debe completar todos los campos requeridos."}
         else:
-            document = {
-            "numPte": numPte,
-            "edad": pte.edad,
+            document = {"edad": pte.edad,
             "imc": pte.imc,
             "tfg": pte.tfg,
             "hba1c": pte.hba1c,
@@ -82,10 +74,9 @@ def envio_info(numPte:int, pte:Paciente):
             "ultCreatinina": pte.ultCreatinina,
             "tolera_aGLP1": pte.tolera_aGLP1}
 
+        ##Insercion en la BDs
         result = collection.insert_one(document)
 
-            # Pacientes[numPte]=pte
-            # return Pacientes[numPte]
         return {"message": "registro agregada(o)"}
 
 
