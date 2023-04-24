@@ -6,29 +6,14 @@ from pymongo import MongoClient
 from pydantic import BaseModel
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
+from mainSucre import mainSucre
 
 ##App
 app = FastAPI()
 
-
 @app.get("/")
 def root():
     return {"message": "Hello World"}
-
-
-@app.get("/get-paciente/{paciente_id}")
-def get_paciente(paciente_id:int):
-    return Pacientes[paciente_id]
-
-
-##Base de datos Mongo para almacenar lo que se envia
-Pacientes={
-    1:{
-        'name' : "Carlos",
-        'email' : 'email@carlos',
-        'password' : 'carlinhos'
-    }
-}
 
 ##Mongo DB conexion:
 uri = "mongodb+srv://andrewml1:ludacris@cluster0.iwdoxtk.mongodb.net/?retryWrites=true&w=majority"
@@ -55,6 +40,7 @@ class Paciente(BaseModel):
     ultCreatinina: int = 3
     tolera_aGLP1: bool = True
 
+
 @app.post("/Enviar")
 def envio_info(numPte:int, pte:Paciente):
         if any(value is None for value in pte.dict().values()):  # Verifica que todos los valores del objeto Paciente se han completado
@@ -74,11 +60,49 @@ def envio_info(numPte:int, pte:Paciente):
             "ultCreatinina": pte.ultCreatinina,
             "tolera_aGLP1": pte.tolera_aGLP1}
 
+            ##Preparacion de datos
+
+            ##Tratar paciente (arbol)
+            tratamiento = tratar(pte)
+
+            ##Insercion en la BDs
+            result = collection.insert_one(document)
+            return {"message": tratamiento}
+
+
+class PacienteVomit(BaseModel):
+    edad: int = None
+    vomit: str = None
+
+@app.post("/EnviarVomito")
+def envio_info(pte: PacienteVomit):
+    if any(value is None for value in pte.dict().values()):  # Verifica que todos los valores del objeto Paciente se han completado
+        return {"Error": "Debe completar todos los campos requeridos."}
+    else:
+        document = {"edad": pte.edad,
+                    "vomit": pte.vomit}
+
+        ##Preparacion de datos
+
+        ##Tratar paciente (arbol)
+        tratamiento = tratarVomito(pte)
+
         ##Insercion en la BDs
         result = collection.insert_one(document)
+        return {"message": tratamiento}
 
-        return {"message": "registro agregada(o)"}
 
+##Metodo para cuando llega toda la info
+def tratar(pte):
+    ###Este es el que se debe de almacenar en otra BDs
+    return 'pte para tratamiento xyz'
+
+##Metodo para cuando llega el vomito
+def tratarVomito(pte):
+    ###Este es el que se debe de almacenar en otra BDs
+    ##Return de main
+    resultado = mainSucre()
+    return resultado
 
 
 
